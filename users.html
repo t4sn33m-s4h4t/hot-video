@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Posts</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 20px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .post {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+    }
+
+    .post-title {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .post-text {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .copy-button {
+      cursor: pointer;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      font-size: 14px;
+      margin-right: 10px;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>All Posts</h1>
+  <button onclick="deleteAllBlogs()">Delete All Blogs</button>
+  <!-- Container to display all posts -->
+  <div id="postsContainer"></div>
+
+  <script>
+    // Function to fetch and display all posts
+    function fetchAllPosts() {
+      fetch('https://grumpy-pear-caridea.cyclic.app/get-blogs')
+      .then(response => response.json())
+      .then(posts => {
+        // Display posts in the container
+        const postsContainer = document.getElementById('postsContainer');
+        postsContainer.innerHTML = '';
+
+        posts.forEach((post, index) => {
+          const postDiv = document.createElement('div');
+          postDiv.className = 'post';
+
+          const postNumber = document.createElement('span');
+          postNumber.innerHTML = `${index + 1}. `;
+          postNumber.className = 'post-number';
+          postDiv.appendChild(postNumber);
+
+          const titleDiv = document.createElement('div');
+          titleDiv.innerHTML = `<strong>${post.title}</strong>`;
+          titleDiv.className = 'post-title';
+          postDiv.appendChild(titleDiv);
+
+          const copyTitleButton = createCopyButton(post.title);
+          titleDiv.appendChild(copyTitleButton);
+
+          const textDiv = document.createElement('div');
+          textDiv.innerHTML = `${post.text}`;
+          textDiv.className = 'post-text';
+          postDiv.appendChild(textDiv);
+
+          const copyTextButton = createCopyButton(post.text);
+          textDiv.appendChild(copyTextButton);
+
+          postsContainer.appendChild(postDiv);
+        });
+      })
+      .catch(error => console.error('Error:', error));
+    }
+
+    // Function to create a "Copy" button
+    function createCopyButton(textToCopy) {
+      const copyButton = document.createElement('button');
+      copyButton.innerHTML = 'Copy';
+      copyButton.className = 'copy-button';
+      copyButton.onclick = () => copyToClipboard(textToCopy);
+      return copyButton;
+    }
+
+    // Function to copy text to the clipboard
+    function copyToClipboard(textToCopy) {
+      navigator.clipboard.writeText(textToCopy)
+        .then(() => console.log('Copied to clipboard'))
+        .catch(err => console.error('Error copying to clipboard:', err));
+    }
+
+    // Fetch and display all posts on page load
+    document.addEventListener('DOMContentLoaded', fetchAllPosts);
+
+
+    function deleteAllBlogs() {
+      fetch('https://grumpy-pear-caridea.cyclic.app/delete', {
+        method: 'DELETE'
+      })
+      .then(response => response.text())
+      .then(message => {
+        // Display the result message
+        document.getElementById('resultMessage').innerText = message;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('resultMessage').innerText = 'Error deleting blogs';
+      });
+    }
+  </script>
+
+</body>
+</html>
